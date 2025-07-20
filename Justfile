@@ -8,8 +8,8 @@ tpm-luks-unlock:
     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7+14
 
 
-# add-negativo-multimedia:
-#     sudo dnf config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-multimedia.repo
+add-negativo-multimedia:
+    sudo dnf config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-multimedia.repo
 
 install-displaylink:
     # install displaylink from https://github.com/displaylink-rpm/displaylink-rpm/releases
@@ -39,3 +39,56 @@ libvirt-system:
     sudo usermod -aG libvirt $(whoami)
     mkdir -p ~/.config/libvirt
     echo 'uri_default = "qemu:///system"' >> ~/.config/libvirt/libvirt.conf
+
+dnf-system-upgrade:
+    # Upgrade system using dnf - edit as needed for version
+    sudo dnf upgrade --refresh -y
+    sudo dnf install dnf-plugin-system-upgrade
+    sudo dnf system-upgrade download --releasever=42
+    sudo dnf offline reboot
+
+    # 41->42 fix missing iptables and resulting docker error
+    sudo dnf reinstall iptables-nft -y
+
+upgrade:
+    # upgrade stuff
+    sudo dnf upgrade -y
+    sudo flatpak update -y
+
+upgrade-and-poweroff:
+    # upgrade stuff and power off
+    sudo flatpak update -y
+    sudo dnf offline-upgrade reboot --poweroff
+
+switch-to-systemd-boot:
+    # dont do this
+    exit 1
+    # remove grub from protected
+    sudo rm -f /etc/dnf/protected.d/grub*
+    sudo rm -f /etc/dnf/protected.d/shim.conf
+
+    #uninstall grub
+    sudo dnf remove -y grubby grub2\* memtest86\* && sudo rm -rf /boot/grub2 && sudo rm -rf /boot/loader
+
+    # install systemd-boot
+    sudo dnf install systemd-boot-unsigned sdubby
+
+    # Copy your current cmdline options just in case
+    cat /proc/cmdline | cut -d ' ' -f 2- | sudo tee /etc/kernel/cmdline
+    # Install systemd-boot
+    sudo bootctl install
+    # Now, reinstall and regenerate the current kernel entry
+    sudo kernel-install add $(uname -r) /lib/modules/$(uname -r)/vmlinuz
+    # Reinstall the kernel again, just in case we need to trigger some hooks
+    sudo dnf reinstall -y kernel-core
+
+setup-systemd-secure-boot:
+    # dont do this
+    exit 1
+    sudo dnf install sbctl mokutil -y
+    # Generate a new key
+    sudo sbctl create-keys
+    # Enroll the key
+    sudo sbctl enroll-keys
+    # Sign the kernel
+    sudo sbctl sign /boot/vmlinuz-$(uname -r)
