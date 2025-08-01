@@ -5,6 +5,7 @@ default:
 
 tpm-luks-unlock:
     @echo "Setting up TPM and unlocking LUKS"
+    sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p3
     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7+14
 
 
@@ -58,7 +59,9 @@ upgrade:
 upgrade-and-poweroff:
     # upgrade stuff and power off
     sudo flatpak update -y
-    sudo dnf offline-upgrade reboot --poweroff
+    sudo dnf offline-upgrade download -y
+    sudo dnf offline-upgrade reboot --poweroff -y
+    sudo shutdown -s +1
 
 switch-to-systemd-boot:
     # dont do this
@@ -92,3 +95,12 @@ setup-systemd-secure-boot:
     sudo sbctl enroll-keys
     # Sign the kernel
     sudo sbctl sign /boot/vmlinuz-$(uname -r)
+
+enable-luks-discard:
+    # LUKS SSD performance enhancements
+    # @echo "Edit /etc/default/grub and append rd.luks.options=discard to the GRUB_CMDLINE_LINUX_DEFAULT"
+    # @echo "grub2-mkconfig -o /boot/grub2/grub.cfg
+    sudo cryptsetup --allow-discards --perf-no_read_workqueue \
+      --perf-no_write_workqueue --persistent refresh luks-3b2e35c1-7d2d-4c54-a183-200b70f6af4e
+
+    sudo dmsetup table
