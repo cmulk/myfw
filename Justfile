@@ -14,10 +14,13 @@ add-negativo-multimedia:
 
 install-displaylink:
     # install displaylink from https://github.com/displaylink-rpm/displaylink-rpm/releases
+    # now using copr instead
+    sudo dnf copr enable crashdummy/Displaylink
     mokutil --sb-state
     [ ! -f /var/lib/dkms/mok.pub ] && sudo dkms generate_mok
     sudo mokutil --import /var/lib/dkms/mok.pub
     sudo dkms autoinstall
+    sudo modinfo evdi
 
     # negativo17 repo for displaylink is not compatible with rpmfusion
     # sudo dnf install -y displaylink
