@@ -4,13 +4,14 @@ machine_id := `cat /etc/machine-id`
 
 _help:
     @just -f {{ justfile() }} --choose
+    
 
 remove-old-kernels:
     sudo dnf remove $(dnf rq --installonly --latest-limit=-1)
 
 tpm-luks-unlock:
     @echo "Setting up TPM and unlocking LUKS"
-    sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p3
+    sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p6
     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7+14
 
 # add-negativo-multimedia:
@@ -60,16 +61,18 @@ dnf-system-upgrade version:
 
 upgrade:
     # upgrade stuff
-    brew upgrade
-    sudo dnf upgrade -y
+    # brew upgrade
+    # sudo dnf upgrade -y
+    paru -Syyu --noconfirm
     sudo flatpak update -y
 
 upgrade-and-poweroff:
     # upgrade stuff and power off
     sudo flatpak update -y
-    brew upgrade
-    sudo dnf offline-upgrade download -y
-    sudo dnf offline-upgrade reboot --poweroff -y
+    paru -Syyu --noconfirm
+    # brew upgrade
+    # sudo dnf offline-upgrade download -y
+    # sudo dnf offline-upgrade reboot --poweroff -y
     sudo shutdown -s +1
 
 # switch-to-systemd-boot:
@@ -104,10 +107,8 @@ setup-systemd-secure-boot:
 
 enable-luks-discard:
     # LUKS SSD performance enhancements
-    # @echo "Edit /etc/default/grub and append rd.luks.options=discard to the GRUB_CMDLINE_LINUX_DEFAULT"
-    # @echo "grub2-mkconfig -o /boot/grub2/grub.cfg
     sudo cryptsetup --allow-discards --perf-no_read_workqueue \
-      --perf-no_write_workqueue --persistent refresh luks-3b2e35c1-7d2d-4c54-a183-200b70f6af4e
+      --perf-no_write_workqueue --persistent refresh luks-650c4657-c74e-451e-b1c9-12cbb28bdc3c
 
     sudo dmsetup table
 
@@ -134,6 +135,10 @@ generate-rescue-kernel:
 # add tailscale repo
 tailscale-repo:
     sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+
+# arch install virt manager
+install-virt-manager:
+    sudo pacman -S qemu-full libvirt virt-manager dnsmasq edk2-ovmf swtpm
 
 # format
 format:

@@ -1,0 +1,16 @@
+
+shell-integration-features = ssh-env,ssh-terminfo
+
+theme = Atom
+window-height = 32
+window-width = 120
+
+#window-save-state = always
+
+keybind = global:ctrl+backquote=toggle_quick_terminal
+
+background-opacity = .8
+background-blur = true
+
+font-family = "Fira Code"
+font-size = 11
