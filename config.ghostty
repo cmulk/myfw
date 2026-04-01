@@ -7,7 +7,7 @@ window-width = 120
 
 #window-save-state = always
 
-keybind = global:ctrl+backquote=toggle_quick_terminal
+keybind = global:alt+backquote=toggle_quick_terminal
 
 background-opacity = .8
 background-blur = true

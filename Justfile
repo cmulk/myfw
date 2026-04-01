@@ -1,6 +1,7 @@
 # My Framework setup
 
 machine_id := `cat /etc/machine-id`
+root_luks_id := `basename $(findmnt -nvo SOURCE /)`
 
 _help:
     @just -f {{ justfile() }} --choose
@@ -73,7 +74,7 @@ upgrade-and-poweroff:
     # brew upgrade
     # sudo dnf offline-upgrade download -y
     # sudo dnf offline-upgrade reboot --poweroff -y
-    sudo shutdown -s +1
+    sudo shutdown +1
 
 # switch-to-systemd-boot:
 #     # dont do this
@@ -108,7 +109,7 @@ setup-systemd-secure-boot:
 enable-luks-discard:
     # LUKS SSD performance enhancements
     sudo cryptsetup --allow-discards --perf-no_read_workqueue \
-      --perf-no_write_workqueue --persistent refresh luks-650c4657-c74e-451e-b1c9-12cbb28bdc3c
+      --perf-no_write_workqueue --persistent refresh {{ root_luks_id }}
 
     sudo dmsetup table
 
