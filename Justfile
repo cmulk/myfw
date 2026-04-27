@@ -2,17 +2,17 @@
 
 machine_id := `cat /etc/machine-id`
 root_luks_id := `basename $(findmnt -nvo SOURCE /)`
+root_device := `sudo cryptsetup status $(findmnt -nvo SOURCE /) | awk -F: '/device/ {print $2}' | tr -d ' \n'`
 
 _help:
     @just -f {{ justfile() }} --choose
-    
 
 remove-old-kernels:
     sudo dnf remove $(dnf rq --installonly --latest-limit=-1)
 
 tpm-luks-unlock:
-    @echo "Setting up TPM and unlocking LUKS"
-    sudo systemd-cryptenroll --wipe-slot=tpm2 /dev/nvme0n1p6
+    @echo "Setting up TPM and unlocking LUKS for {{ root_device }}"
+    sudo systemd-cryptenroll --wipe-slot=tpm2 {{ root_device }}
     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7+14
 
 # add-negativo-multimedia:
