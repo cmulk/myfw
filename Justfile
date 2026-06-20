@@ -64,17 +64,21 @@ upgrade:
     # upgrade stuff
     # brew upgrade
     # sudo dnf upgrade -y
-    paru -Syyu --noconfirm
+    yay -Syyu --noconfirm
     sudo flatpak update -y
 
 upgrade-and-poweroff:
     # upgrade stuff and power off
     sudo flatpak update -y
-    paru -Syyu --noconfirm
+    yay -Syyu --noconfirm
     # brew upgrade
     # sudo dnf offline-upgrade download -y
     # sudo dnf offline-upgrade reboot --poweroff -y
     sudo shutdown +1
+
+# Remove orphaned Arch packages using yay
+remove-orphans:
+    @orphans="$(yay -Qtdq)"; if [ -n "$orphans" ]; then yay -Rns $orphans; else echo "No orphan packages."; fi
 
 # switch-to-systemd-boot:
 #     # dont do this

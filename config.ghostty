@@ -1,7 +1,7 @@
 
 shell-integration-features = ssh-env,ssh-terminfo
 
-theme = Atom
+theme = Breeze
 window-height = 32
 window-width = 120
 
@@ -9,8 +9,8 @@ window-width = 120
 
 keybind = global:alt+backquote=toggle_quick_terminal
 
-background-opacity = .8
-background-blur = true
+#background-opacity = .8
+#background-blur = true
 
 font-family = "Fira Code"
 font-size = 11
