@@ -62,19 +62,29 @@ dnf-system-upgrade version:
 
 upgrade:
     # upgrade stuff
-    # brew upgrade
-    # sudo dnf upgrade -y
-    yay -Syyu --noconfirm
+    brew upgrade -y
+    sudo dnf upgrade -y
+    # yay -Syyu --noconfirm
     sudo flatpak update -y
+
+# Upgrade firmware using fwupdmgr
+fwupdmgr-upgrade:
+    fwupdmgr refresh --force
+    fwupdmgr get-updates || [ "$?" -eq 2 ]
+    fwupdmgr update 
 
 upgrade-and-poweroff:
     # upgrade stuff and power off
     sudo flatpak update -y
-    yay -Syyu --noconfirm
-    # brew upgrade
-    # sudo dnf offline-upgrade download -y
-    # sudo dnf offline-upgrade reboot --poweroff -y
+    # yay -Syyu --noconfirm
+    brew upgrade
+    sudo dnf offline-upgrade download -y
+    sudo dnf offline-upgrade reboot --poweroff -y
     sudo shutdown +1
+
+# List installed AUR packages using yay
+list-aur-packages:
+    yay -Qm
 
 # Remove orphaned Arch packages using yay
 remove-orphans:
@@ -135,7 +145,7 @@ show-grub:
 generate-rescue-kernel:
     sudo rm -rf /boot/{{ machine_id }}/0-rescue/
     sudo kernel-install add "$(uname -r)" "/lib/modules/$(uname -r)/vmlinuz"
-    sbctl sign -s /boot/{{ machine_id }}/0-rescue/linux
+    # sbctl sign -s /boot/{{ machine_id }}/0-rescue/linux
 
 # add tailscale repo
 tailscale-repo:
